@@ -32,17 +32,17 @@ class QuickWebProxy extends SeoPluginsController{
 
         $this->setPluginTextsForRender($this->textCategory, $this->textTable);
         $this->set('pluginText', $this->pluginText);
+        
+        if (!defined('PLUGIN_PATH')) {
+        	define('PLUGIN_PATH', $this->pluginPath);
+        }
 
         // create setting object and define all settings
-        include_once(SP_PLUGINPATH."/$this->directoryName/qwp_settings.ctrl.php");
-        $this->settingsCtrler = New QWPSettings();
+        $this->settingsCtrler = $this->createHelper('QWP_Settings');
         $this->settingsCtrler->defineAllPluginSystemSettings();
-        $this->settingsCtrler = $this->assignCommonDataToObject($this->settingsCtrler);
 
         // create helper object
-        include_once(SP_PLUGINPATH."/$this->directoryName/qwp_helper.ctrl.php");
-        $this->helperCtrler = New QWPHelper();
-        $this->helperCtrler = $this->assignCommonDataToObject($this->helperCtrler);
+        $this->helperCtrler = $this->createHelper('QWP_Helper');
      
     }
 
@@ -59,72 +59,37 @@ class QuickWebProxy extends SeoPluginsController{
      * function to show the first pagewhile access plugin
      */
     function index($data) {
-        if (isAdmin() ||  BRC_ALLOW_USER_CAMP_MGR) {
-            $this->campaignCtrler->showCampaignManager($data);
+        if (isAdmin() ||  QWP_ALLOW_USER_WEB_PROXY) {
+            $this->helperCtrler->showWebProxyForm($data);
         } else {
             $this->settingsCtrler->showPluginAboutUs();
         }
     }
 
     /*
-     * func to show create new campaign form
+     * function to show the first pagewhile access plugin
      */
-    function newcampaign($data){
-        $this->campaignCtrler->newCampaign($data);
+    function doWebProxy($data) {
+    	$this->helperCtrler->doWebProxy($data);  	
     }
 
     /*
-     * func to create new campaign
+     * function to show the first pagewhile access plugin
      */
-    function createCampaign($data){
-        $this->campaignCtrler->createCampaign($data);
-    }
-
-    /*
-     * func to show edit campaign form
-     */
-    function editcampaign($data){
-        $this->campaignCtrler->editCampaign($data['campaign_id']);
-    }
-
-    /*
-     * func to update campaign
-     */
-    function updateCampaign($data){
-        $this->campaignCtrler->updateCampaign($data);
-    }
-
-    /*
-     * func to delete campaign
-     */
-    function deleteCampaign($data){
-
-        if (!empty($data['campaign_id'])) {
-            $this->campaignCtrler->deleteCampaign($data['campaign_id']);
-            $this->campaignCtrler->showCampaignManager($data);
-        }
-    }
-
-    /*
-     * function to activate campaign
-     */
-    function Activate($data) {
-
-        if (!empty($data['campaign_id'])) {
-            $this->campaignCtrler->__changeStatus($data['campaign_id'], 1);
-            $this->campaignCtrler->showCampaignManager($data);
-        }
-    }
-
-    /*
-     * function to deactivate campaign
-     */
-    function Inactivate($data) {
-
-        if (!empty($data['campaign_id'])) {
-            $this->campaignCtrler->__changeStatus($data['campaign_id'], 0);
-            $this->campaignCtrler->showCampaignManager($data);
-        }
+    function processWebProxy($data) {
+    	
+    	if (SP_DEMO) {
+    		showErrorMsg("Operation not allowed.");
+    	} else {
+    		
+    		if (isAdmin() || QWP_ALLOW_USER_WEB_PROXY) {
+    			$this->helperCtrler->processWebProxy($data);
+    		} else {
+				showErrorMsg("Operation not allowed.");
+    		}
+    		
+    	}
+    	
     }
 
     /*
@@ -150,81 +115,18 @@ class QuickWebProxy extends SeoPluginsController{
         $this->settingsCtrler->showPluginAboutUs();
     }
 
-    /*
-     * function to show cron command
+    /**
+     * function to show proxy server reports form
      */
-    function showcroncommand() {
-        $this->pluginRender('croncommand');
-    }
-
-    function cronJob($data) {
-        $this->campaignCtrler->startCampaignJob($data);
-    }
-
     function report($data){
-        $this->reportCtrler->viewFilter($data);
-    }
-
-    function reportDetail($data){
-        $this->reportCtrler->detailedViewFilter($data);
-    }
-
-    function reportGraph($data){
-        $this->reportCtrler->detailedViewFilter($data);
-    }
-
-    function showreport($data){
-        $this->reportCtrler->showReportSummary($data);
-    }
-
-    function showDetailedReport($data){
-        $this->reportCtrler->showDetailedReport($data);
-    }
-
-    function showGraphicalReport($data){
-        $this->reportCtrler->showGraphicalReport($data);
+        $this->helperCtrler->viewFilter($data);
     }
     
-    function sendCronReport($data){ 
-        $this->campaignCtrler->sendCronReport($data);
-    }
-    
-    function showRunCampaign($data){
-    	
-    	// if run campaign from UI is enabled
-    	if (BRC_ENABLE_UI_REPORT_GENERATION) {
-        	$this->campaignCtrler->showRunCampaign($data);
-    	} else {
-    		showErrorMsg("Not allowed to do this operation");
-    	}
-    	
-    }
-    
-    function runCampaign($data){
-    	
-    	// if run campaign from UI is enabled
-    	if (BRC_ENABLE_UI_REPORT_GENERATION) {
-        	$this->campaignCtrler->runCampaign($data['campaign_id']);
-    	} else {
-    		showErrorMsg("Not allowed to do this operation");
-    	}
-    	
-    }
-    
-    function showKeywordSelectBox($data) {
-    	$keywordList = $this->helperCtrler->getCampaignDataLists("keyword", $data['campaign_id'], true);
-		$this->set('keywordList', $keywordList);		
-		$this->set('keywordId', key($keywordList));
-		$submitAction = pluginPOSTMethod('search_form', 'subcontent', 'action=showreport');
-		$this->set('onChange', $submitAction);
-		$this->pluginRender ('keyword_select_box');
-		print "<script>$submitAction</script>";
-    }
-
-    function userTypeSettings($data){
-    	checkAdminLoggedIn();
-    	$userTypeObj = $this->createHelper("BRCUserType");
-    	$userTypeObj->showPluginUserTypeSettings($data);
+    /**
+     * function to show proxy server reports
+     */
+    function showReport($data){
+        $this->helperCtrler->showReportSummary($data);
     }
   
 }

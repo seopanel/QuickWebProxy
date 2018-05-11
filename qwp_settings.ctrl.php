@@ -4,7 +4,7 @@
  * @author Geo Varghese 
  * 
  */
-class QWPSettings extends QuickWebProxy {
+class QWP_Settings extends QuickWebProxy {
     
     // the variable to store the seetings database table name
     var $settingsTable = "qwp_settings";
