@@ -45,7 +45,7 @@ class QWP_Helper extends QuickWebProxy {
 		}
 		
 		$info['url'] = addHttpToUrl($info['url']);
-		$url = $this->pluginScriptUrl . "&action=processWebProxy&url=" . urlencode($info['url']);
+		$url = $this->pluginScriptUrl . "&action=processWebProxy&doc_type=export&url=" . urlencode($info['url']);
 		$url .= "&source_id=" . intval($info['source_id']) . "&anonymize=" . intval($info['anonymize']);
 		echo "<script type='text/javascript'>openInNewTab('$url')</script>";
 	}
@@ -55,7 +55,7 @@ class QWP_Helper extends QuickWebProxy {
 	 */
 	function processWebProxy($info) {
 		
-		if (empty($info['url'])) {
+		if (empty($info['url']) && empty($info['miniProxyFormAction'])) {
 			showErrorMsg("Please enter a valid url.");
 		}
 		
@@ -66,6 +66,8 @@ class QWP_Helper extends QuickWebProxy {
 		$url = urldecode($info['url']);
 		$sourceId = intval($info['source_id']);
 		$anonymize = intval($info['anonymize']);
+		
+		define("PROXY_PREFIX", $this->pluginScriptUrl . "&action=processWebProxy&doc_type=export&source_id=$sourceId&anonymize=$anonymize&url=");
 		include $this->pluginPath . '/miniProxy.php';
 		
 	}

@@ -88,13 +88,16 @@ if (!function_exists("getallheaders")) {
   }
 }
 
-$usingDefaultPort =  (!isset($_SERVER["HTTPS"]) && $_SERVER["SERVER_PORT"] === 80) || (isset($_SERVER["HTTPS"]) && $_SERVER["SERVER_PORT"] === 443);
-$prefixPort = $usingDefaultPort ? "" : ":" . $_SERVER["SERVER_PORT"];
-//Use HTTP_HOST to support client-configured DNS (instead of SERVER_NAME), but remove the port if one is present
-$prefixHost = $_SERVER["HTTP_HOST"];
-$prefixHost = strpos($prefixHost, ":") ? implode(":", explode(":", $_SERVER["HTTP_HOST"], -1)) : $prefixHost;
-
-define("PROXY_PREFIX", "http" . (isset($_SERVER["HTTPS"]) ? "s" : "") . "://" . $prefixHost . $prefixPort . $_SERVER["SCRIPT_NAME"] . "?");
+# SP CHANGE: if PROXY_PREFIX is not already defined
+if (!defined("PROXY_PREFIX")) {
+	$usingDefaultPort =  (!isset($_SERVER["HTTPS"]) && $_SERVER["SERVER_PORT"] === 80) || (isset($_SERVER["HTTPS"]) && $_SERVER["SERVER_PORT"] === 443);
+	$prefixPort = $usingDefaultPort ? "" : ":" . $_SERVER["SERVER_PORT"];
+	//Use HTTP_HOST to support client-configured DNS (instead of SERVER_NAME), but remove the port if one is present
+	$prefixHost = $_SERVER["HTTP_HOST"];
+	$prefixHost = strpos($prefixHost, ":") ? implode(":", explode(":", $_SERVER["HTTP_HOST"], -1)) : $prefixHost;
+	
+	define("PROXY_PREFIX", "http" . (isset($_SERVER["HTTPS"]) ? "s" : "") . "://" . $prefixHost . $prefixPort . $_SERVER["SCRIPT_NAME"] . "?");
+}
 
 //Makes an HTTP request via cURL, using request data that was passed directly to this script.
 function makeRequest($url) {
@@ -168,6 +171,10 @@ function makeRequest($url) {
   curl_setopt($ch, CURLOPT_HEADER, true);
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  
+  // to fix the ssl related issues
+  curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 
   //Set the request URL.
   curl_setopt($ch, CURLOPT_URL, $url);
@@ -272,8 +279,15 @@ if (isset($_POST["miniProxyFormAction"])) {
     $url = $formAction . "?" . http_build_query($queryParams);
   } else {
     $url = substr($_SERVER["REQUEST_URI"], strlen($_SERVER["SCRIPT_NAME"]) + 1);
+    
+    # SP CHANGE: if url passed in query parameters
+    if (!empty($queryParams['url'])) {
+    	$url = $queryParams['url'];
+    }
+    
   }
 }
+
 if (empty($url)) {
     if (empty($startURL)) {
       die("<html><head><title>miniProxy</title></head><body><h1>Welcome to miniProxy!</h1>miniProxy can be directly invoked like this: <a href=\"" . PROXY_PREFIX . $landingExampleURL . "\">" . PROXY_PREFIX . $landingExampleURL . "</a><br /><br />Or, you can simply enter a URL below:<br /><br /><form onsubmit=\"if (document.getElementById('site').value) { window.location.href='" . PROXY_PREFIX . "' + document.getElementById('site').value; return false; } else { window.location.href='" . PROXY_PREFIX . $landingExampleURL . "'; return false; }\" autocomplete=\"off\"><input id=\"site\" type=\"text\" size=\"50\" /><input type=\"submit\" value=\"Proxy It!\" /></form></body></html>");
