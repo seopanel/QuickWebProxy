@@ -7,7 +7,7 @@ $spTextPanel = $pluginCtrler->getLanguageTexts('panel', $_SESSION['lang_code']);
 	<?php if(isAdmin() || QWP_ALLOW_USER_WEB_PROXY) {?>
     	<li><a href="javascript:void(0);" onclick="<?php echo  pluginMenu(); ?>"><?php echo  $pluginText['Web Proxy']?></a></li>
 	<?php }?>
-    <li><a href="javascript:void(0);" onclick="<?php echo  pluginMenu('action=report'); ?>"><?php echo $spText['common']['Reports']?></a></li>
+    <li><a href="javascript:void(0);" onclick="scriptDoLoad('log.php?sec=crawl&crawl_type=webproxy', 'content');"><?php echo $spText['common']['Reports']?></a></li>
 	<?php if(isAdmin()) {?>	
 		<li><a href="javascript:void(0);" onclick="<?php echo pluginMenu('action=settings'); ?>"><?php echo $spTextPanel['Settings']?></a></li>
     <?php }?>	

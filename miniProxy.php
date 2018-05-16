@@ -23,7 +23,8 @@ $forceCORS = false;
 
 //Set to false to report the client machine's IP address to proxied sites via the HTTP `x-forwarded-for` header.
 //Setting to false may improve compatibility with some sites, but also exposes more information about end users to proxied sites.
-$anonymize = true;
+# SP CHANGE: the value set from plugin
+#$anonymize = true;
 
 //Start/default URL that that will be proxied when miniProxy is first loaded in a browser/accessed directly with no URL to proxy.
 //If empty, miniProxy will show its own landing page.
@@ -99,6 +100,31 @@ if (!defined("PROXY_PREFIX")) {
 	define("PROXY_PREFIX", "http" . (isset($_SERVER["HTTPS"]) ? "s" : "") . "://" . $prefixHost . $prefixPort . $_SERVER["SCRIPT_NAME"] . "?");
 }
 
+# SP CHANGE: to assign custom values
+function assignSPCurlCustomValues($ch) {
+	global $sourceId;
+	
+	# SP CHANGE: to fix the ssl related issues
+	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+	
+	// to use proxy if proxy enabled
+	if ($sourceId > 0) {
+		$proxyCtrler = New ProxyController();
+		$proxyInfo = $proxyCtrler->__getProxyInfo($sourceId);
+		curl_setopt($ch, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);
+		curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, CURLOPT_HTTPPROXYTUNNEL_VAL);
+		
+		if (!empty($proxyInfo['proxy_auth'])) {
+			curl_setopt ($ch, CURLOPT_PROXYUSERPWD, $proxyInfo['proxy_username'].":".$proxyInfo['proxy_password']);
+		}
+		
+	}
+	
+	return $ch;
+	
+}
+
 //Makes an HTTP request via cURL, using request data that was passed directly to this script.
 function makeRequest($url) {
 
@@ -172,9 +198,8 @@ function makeRequest($url) {
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   
-  // to fix the ssl related issues
-  curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+  # SP CHANGE: assign curl custom values for SP
+  $ch = assignSPCurlCustomValues($ch);
 
   //Set the request URL.
   curl_setopt($ch, CURLOPT_URL, $url);
@@ -183,6 +208,11 @@ function makeRequest($url) {
   $response = curl_exec($ch);
   $responseInfo = curl_getinfo($ch);
   $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+  
+  # SP CHANGE: to find the errors if occured
+  $errorNo = curl_errno($ch );
+  $errMsg = curl_error($ch);
+  
   curl_close($ch);
 
   //Setting CURLOPT_HEADER to true above forces the response headers and body
@@ -190,7 +220,10 @@ function makeRequest($url) {
   $responseHeaders = substr($response, 0, $headerSize);
   $responseBody = substr($response, $headerSize);
 
-  return array("headers" => $responseHeaders, "body" => $responseBody, "responseInfo" => $responseInfo);
+  # SP CHANGE: to set the errors if occured
+  # return array("headers" => $responseHeaders, "body" => $responseBody, "responseInfo" => $responseInfo);
+  return array("headers" => $responseHeaders, "body" => $responseBody, "responseInfo" => $responseInfo, 'error' => $errorNo, 'errmsg' => $errMsg);
+  
 }
 
 //Converts relative URLs to absolute ones, given a base URL.

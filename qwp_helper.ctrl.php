@@ -45,7 +45,7 @@ class QWP_Helper extends QuickWebProxy {
 		}
 		
 		$info['url'] = addHttpToUrl($info['url']);
-		$url = $this->pluginScriptUrl . "&action=processWebProxy&doc_type=export&url=" . urlencode($info['url']);
+		$url = $this->pluginScriptUrl . "&base_url=1&action=processWebProxy&doc_type=export&url=" . urlencode($info['url']);
 		$url .= "&source_id=" . intval($info['source_id']) . "&anonymize=" . intval($info['anonymize']);
 		echo "<script type='text/javascript'>openInNewTab('$url')</script>";
 	}
@@ -54,6 +54,7 @@ class QWP_Helper extends QuickWebProxy {
 	 * function to process web proxy action
 	 */
 	function processWebProxy($info) {
+		global $sourceId;
 		
 		if (empty($info['url']) && empty($info['miniProxyFormAction'])) {
 			showErrorMsg("Please enter a valid url.");
@@ -69,6 +70,25 @@ class QWP_Helper extends QuickWebProxy {
 		
 		define("PROXY_PREFIX", $this->pluginScriptUrl . "&action=processWebProxy&doc_type=export&source_id=$sourceId&anonymize=$anonymize&url=");
 		include $this->pluginPath . '/miniProxy.php';
+		
+		// if base url is crawled, then store the details in crawl log
+		if (!empty($info['base_url'])) {
+			
+			// update crawl log in database for future reference
+			$crawlLogCtrl = new CrawlLogController();
+			$crawlInfo['crawl_status'] = $response['error'] ? 0 : 1;
+			$crawlInfo['ref_id'] = $crawlInfo['crawl_link'] = $response['responseInfo']['url'];
+			$crawlInfo['proxy_id'] = $sourceId;
+			$crawlInfo['crawl_type'] = "webproxy";
+			$crawlInfo['log_message'] = addslashes($response['errmsg']);			
+			$crawlLogCtrl->createCrawlLog($crawlInfo);
+			
+		}
+		
+		// show errors, if error existing
+		if (!empty($response['error'])) {
+			showErrorMsg($response['errmsg']);
+		}
 		
 	}
     
