@@ -37,14 +37,20 @@ class QWP_Helper extends QuickWebProxy {
 	function doWebProxy($info) {
 		
 		if (empty($info['url'])) {
-			showErrorMsg("Please enter a valid url.");
+			showErrorMsg($this->pluginText["Please enter a valid url"]);
 		}
 		
 		if (!isset($info['source_id'])) {
-			showErrorMsg("Server list is empty.");
+			showErrorMsg($this->pluginText["Server list is empty"]);
 		}
 		
 		$info['url'] = addHttpToUrl($info['url']);
+		
+		// check for backslahes at last
+		if (!stristr($url, '?') && !stristr($url, '#') && !preg_match('/\/$/', $url)) {
+			$info['url'] .= "/";
+		}
+		
 		$url = $this->pluginScriptUrl . "&base_url=1&action=processWebProxy&doc_type=export&url=" . urlencode($info['url']);
 		$url .= "&source_id=" . intval($info['source_id']) . "&anonymize=" . intval($info['anonymize']);
 		echo "<script type='text/javascript'>openInNewTab('$url')</script>";
@@ -57,16 +63,29 @@ class QWP_Helper extends QuickWebProxy {
 		global $sourceId;
 		
 		if (empty($info['url']) && empty($info['miniProxyFormAction'])) {
-			showErrorMsg("Please enter a valid url.");
+			showErrorMsg($this->pluginText["Please enter a valid url"]);
 		}
 		
 		if (!isset($info['source_id'])) {
-			showErrorMsg("Server list is empty.");
+			showErrorMsg($this->pluginText["Server list is empty"]);
 		}
 		
 		$url = urldecode($info['url']);
 		$sourceId = intval($info['source_id']);
 		$anonymize = intval($info['anonymize']);
+		
+		// if base url is crawled, then store the details in crawl log
+		if (!empty($info['base_url'])) {
+				
+			// update crawl log in database for future reference
+			$crawlLogCtrl = new CrawlLogController();
+			$crawlInfo['crawl_status'] = $response['error'] ? 0 : 1;
+			$crawlInfo['ref_id'] = $crawlInfo['crawl_link'] = $url;
+			$crawlInfo['proxy_id'] = $sourceId;
+			$crawlInfo['crawl_type'] = "webproxy";
+			$logId = $crawlLogCtrl->createCrawlLog($crawlInfo);
+				
+		}
 		
 		define("PROXY_PREFIX", $this->pluginScriptUrl . "&action=processWebProxy&doc_type=export&source_id=$sourceId&anonymize=$anonymize&url=");
 		include $this->pluginPath . '/miniProxy.php';
@@ -75,13 +94,10 @@ class QWP_Helper extends QuickWebProxy {
 		if (!empty($info['base_url'])) {
 			
 			// update crawl log in database for future reference
-			$crawlLogCtrl = new CrawlLogController();
 			$crawlInfo['crawl_status'] = $response['error'] ? 0 : 1;
 			$crawlInfo['ref_id'] = $crawlInfo['crawl_link'] = $response['responseInfo']['url'];
-			$crawlInfo['proxy_id'] = $sourceId;
-			$crawlInfo['crawl_type'] = "webproxy";
 			$crawlInfo['log_message'] = addslashes($response['errmsg']);			
-			$crawlLogCtrl->createCrawlLog($crawlInfo);
+			$crawlLogCtrl->updateCrawlLog($logId, $crawlInfo);
 			
 		}
 		

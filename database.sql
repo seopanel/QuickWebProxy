@@ -22,4 +22,6 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'QuickWebProxy', 'QWP_ALLOW_WEB_SERVER_ACT_AS_PROXY', 'Allow web server to act as a proxy'),
 ('en', 'QuickWebProxy', 'Web Proxy', 'Web Proxy'),
 ('en', 'QuickWebProxy', 'Web Server', 'Web Server'),
+('en', 'QuickWebProxy', 'Please enter a valid url', 'Please enter a valid url'),
+('en', 'QuickWebProxy', 'Server list is empty', 'Server list is empty'),
 ('en', 'common', 'Server', 'Server');

@@ -364,8 +364,12 @@ $responseInfo = $response["responseInfo"];
 //what was requested, explicitly redirect the proxy there.
 $responseURL = $responseInfo["url"];
 if ($responseURL !== $url) {
-  header("Location: " . PROXY_PREFIX . $responseURL, true);
-  exit(0);
+	
+	# SP CHANGE: if url redirected to some other url
+	#header("Location: " . PROXY_PREFIX . $responseURL, true);
+  	header("Location: " . PROXY_PREFIX . $responseURL . "&base_url=1", true);
+  	exit(0);
+  	
 }
 
 //A regex that indicates which server response headers should be stripped out of the proxified response.
