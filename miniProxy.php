@@ -113,7 +113,10 @@ function assignSPCurlCustomValues($ch) {
 		$proxyCtrler = New ProxyController();
 		$proxyInfo = $proxyCtrler->__getProxyInfo($sourceId);
 		curl_setopt($ch, CURLOPT_PROXY, $proxyInfo['proxy'].":".$proxyInfo['port']);
-		curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, CURLOPT_HTTPPROXYTUNNEL_VAL);
+		
+		if (CURLOPT_HTTPPROXYTUNNEL_VAL) {
+			curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, CURLOPT_HTTPPROXYTUNNEL_VAL);
+		}
 		
 		if (!empty($proxyInfo['proxy_auth'])) {
 			curl_setopt ($ch, CURLOPT_PROXYUSERPWD, $proxyInfo['proxy_username'].":".$proxyInfo['proxy_password']);
