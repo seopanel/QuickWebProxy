@@ -97,6 +97,7 @@ class QuickWebProxy extends SeoPluginsController{
      */
     function settings($data) {
     	checkAdminLoggedIn();
+    	$this->settingsCtrler->set('spTextPanel', $this->getLanguageTexts('panel', $_SESSION['lang_code']));
         $this->settingsCtrler->showPluginSettings();
     }
 
@@ -112,6 +113,7 @@ class QuickWebProxy extends SeoPluginsController{
      * func to show about us
      */
     function aboutus() {
+    	$this->settingsCtrler->set('spTextPanel', $this->getLanguageTexts('panel', $_SESSION['lang_code']));
         $this->settingsCtrler->showPluginAboutUs();
     }
 
