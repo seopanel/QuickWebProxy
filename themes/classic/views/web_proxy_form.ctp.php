@@ -2,7 +2,7 @@
 echo showSectionHead($pluginText['Web Proxy']);
 $actFun = SP_DEMO ? "alertDemoMsg()" : pluginConfirmPOSTMethod('projectform', 'subcontent', 'action=doWebProxy');
 ?>
-<form id='projectform'>
+<form id='projectform' onsubmit="<?php echo $actFun?>;return false;">
 <table width="60%" border="0" cellspacing="0" cellpadding="0" class="search">	
 	<tr>
 		<th><?php echo $spText['common']['Server']?>:</th>
