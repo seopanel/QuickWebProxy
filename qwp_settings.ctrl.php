@@ -13,7 +13,6 @@ class QWP_Settings extends QuickWebProxy {
 	 * func to get all plugin settings
 	 */ 
 	function __getAllPluginSettings() {
-		
 		$sql = "select * from $this->settingsTable order by id";
 		$settingsList = $this->db->select($sql);
 		return $settingsList;
@@ -23,7 +22,7 @@ class QWP_Settings extends QuickWebProxy {
 	 * function to show  plugin settings
 	 */
 	function showPluginSettings() {
-	    
+	    $this->set('spTextPanel', $this->getLanguageTexts('panel', $_SESSION['lang_code']));
 	    $this->set('list', $this->__getAllPluginSettings());	
 		$this->pluginRender('showsettings');
 	}
@@ -32,31 +31,28 @@ class QWP_Settings extends QuickWebProxy {
 	 * func to update plugin settings
 	 */
 	function updatePluginSettings($postInfo) {
-		
 		$setList = $this->__getAllPluginSettings();
-		foreach($setList as $setInfo){
-			
+		foreach($setList as $setInfo) {
 			$sql = "update $this->settingsTable set set_val='".addslashes($postInfo[$setInfo['set_name']])."' where set_name='{$setInfo['set_name']}'";
 			$this->db->query($sql);
 		}
 		
 		$this->set('saved', 1);
+		$this->set('spTextSettings', $this->getLanguageTexts('settings', $_SESSION['lang_code']));
 		$this->showPluginSettings();
 	}
 	
 	/*
 	 * func to show about us plugin
 	 */ 
-	function showPluginAboutUs() {		
-
+	function showPluginAboutUs() {
 		$this->pluginRender('aboutus');
 	}
 	
 	/*
-	 * functo set all plugin settings
+	 * function set all plugin settings
 	 */
 	function defineAllPluginSystemSettings() {
-		
 		$settingsList = $this->__getAllPluginSettings();		
 		foreach($settingsList as $settingsInfo){
 			if(!defined($settingsInfo['set_name'])){

@@ -3,7 +3,7 @@ echo showSectionHead($pluginText['Web Proxy']);
 $actFun = SP_DEMO ? "alertDemoMsg()" : pluginConfirmPOSTMethod('projectform', 'subcontent', 'action=doWebProxy');
 ?>
 <form id='projectform' onsubmit="<?php echo $actFun?>;return false;">
-<table width="60%" border="0" cellspacing="0" cellpadding="0" class="search">	
+<table class="search">	
 	<tr>
 		<th><?php echo $spText['common']['Server']?>:</th>
 		<td>
@@ -22,12 +22,6 @@ $actFun = SP_DEMO ? "alertDemoMsg()" : pluginConfirmPOSTMethod('projectform', 's
 		<th><?php echo $spText['common']['Url']?>:*</th>
 		<td>
 			<input type="text" name="url" style="width: 400px;" value="<?php echo $post['url']?>">
-		</td>
-	</tr>	
-	<tr>
-		<th><?php echo $pluginText['Anonymize']?>: </th>
-		<td>
-			<input type="checkbox" value="1" name="anonymize" <?php echo empty($anonymize) ? "" : "checked"; ?>/>
 		</td>
 	</tr>
 	<tr>

@@ -2,7 +2,7 @@
 <?php if(!empty($saved)) showSuccessMsg($spTextSettings['allsettingssaved'], false); ?>
 <form id="updateSettings">
 <input type="hidden" value="update" name="sec">
-<table width="100%" border="0" cellspacing="0" cellpadding="0" class="list">
+<table class="list">
 	<tr class="listHead">
 		<td class="left" width='36%'><?php echo $spTextPanel['Settings']?></td>
 		<td class="right">&nbsp;</td>
@@ -57,17 +57,9 @@
 		</tr>
 		<?php 
 	}
-	?>		
-	<tr class="blue_row">
-		<td class="tab_left_bot_noborder"></td>
-		<td class="tab_right_bot"></td>
-	</tr>
-	<tr class="listBot">
-		<td class="left" colspan="1"></td>
-		<td class="right"></td>
-	</tr>
+	?>
 </table>
-<table width="100%" cellspacing="0" cellpadding="0" border="0" class="actionSec">
+<table class="actionSec">
 	<tr>
     	<td style="padding-top: 6px;text-align:right;">
     		<a onclick="<?php echo pluginGETMethod('action=settings', 'content')?>" href="javascript:void(0);" class="actionbut">
