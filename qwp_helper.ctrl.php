@@ -56,10 +56,6 @@ class QWP_Helper extends QuickWebProxy {
 		
 		// check for backslahes at last
 		$info['url'] = addHttpToUrl($info['url']);
-		if (!stristr($info['url'], '?') && !stristr($info['url'], '#') && !preg_match('/\/$/', $info['url'])) {
-			$info['url'] .= "/";
-		}
-		
 		$url = $this->pluginScriptUrl . "&base_url=1&action=processWebProxy&doc_type=export&url=" . urlencode($info['url']);
 		$url .= "&source_id=" . intval($info['source_id']);
 		echo "<script type='text/javascript'>openInNewTab('$url')</script>";
