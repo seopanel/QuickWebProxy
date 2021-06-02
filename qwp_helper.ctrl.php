@@ -90,21 +90,17 @@ class QWP_Helper extends QuickWebProxy {
 			$logId = $crawlLogCtrl->createCrawlLog($crawlInfo);
 		}
 		
+		global $retInfo;
 		define("PROXY_PREFIX", $this->pluginScriptUrl . "&action=processWebProxy&doc_type=export&source_id=$sourceId");
 		include $this->pluginPath . '/libs/php-proxy-app/index.php';
 		
-		/*// if base url is crawled, then store the details in crawl log
+		// if base url is crawled, then store the details in crawl log
 		if (!empty($info['base_url'])) {
-			$crawlInfo['crawl_status'] = $response['error'] ? 0 : 1;
-			$crawlInfo['ref_id'] = $crawlInfo['crawl_link'] = $response['responseInfo']['url'];
-			$crawlInfo['log_message'] = addslashes($response['errmsg']);			
+		    $crawlInfo['crawl_status'] = $retInfo['crawl_status'] ? 1 : 0;
+		    $crawlInfo['ref_id'] = $crawlInfo['crawl_link'] = $retInfo['crawl_link'];
+		    $crawlInfo['log_message'] = addslashes($retInfo['log_message'] ? $retInfo['log_message'] : $_SESSION['text']['label']['Success']);			
 			$crawlLogCtrl->updateCrawlLog($logId, $crawlInfo);
 		}
-		
-		// show errors, if error existing
-		if (!empty($response['error'])) {
-			showErrorMsg($response['errmsg']);
-		}*/
 	}	
 }
 ?>

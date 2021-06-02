@@ -152,5 +152,15 @@ try {
 }
 
 /** SP CUSTOM CODE END START **/
+
+// if base url is crawled, then store the details in crawl log
+$retInfo = ['crawl_link' => $url];
+if (isset($ex) && is_object($ex) && !empty($ex)) {
+    $retInfo['crawl_status'] = 0;
+    $retInfo['log_message'] = $ex->getMessage();
+} else {
+    $retInfo['crawl_status'] = 1;    
+}
+
 chdir($currWorkingDir);
 /** SP CUSTOM CODE END **/
