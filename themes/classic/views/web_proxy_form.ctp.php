@@ -7,7 +7,7 @@ $actFun = SP_DEMO ? "alertDemoMsg()" : pluginConfirmPOSTMethod('projectform', 's
 	<tr>
 		<th><?php echo $spText['common']['Server']?>:</th>
 		<td>
-			<select name="source_id" style="width:150px;">
+			<select name="source_id">
 				<?php foreach($proxyList as $proxyInfo){?>
 					<?php if($proxyInfo['id'] == $sourceId){?>
 						<option value="<?php echo $proxyInfo['id']?>" selected><?php echo $proxyInfo['proxy']?></option>

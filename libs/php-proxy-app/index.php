@@ -17,6 +17,7 @@ if (!defined('SP_WEBPATH')) {
     die("Direct Access Denied For This Page!");
 }
 
+global $proxyErrMsg;
 $currWorkingDir = getcwd();
 $proxyLibPath = PLUGIN_PATH . "/libs/php-proxy-app";
 chdir($proxyLibPath);
@@ -158,6 +159,9 @@ $retInfo = ['crawl_link' => $url];
 if (isset($ex) && is_object($ex) && !empty($ex)) {
     $retInfo['crawl_status'] = 0;
     $retInfo['log_message'] = $ex->getMessage();
+} elseif (!empty($proxyErrMsg)) {
+    $retInfo['crawl_status'] = 0;
+    $retInfo['log_message'] = $proxyErrMsg;
 } else {
     $retInfo['crawl_status'] = 1;    
 }
