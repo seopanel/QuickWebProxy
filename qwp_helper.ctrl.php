@@ -51,6 +51,10 @@ class QWP_Helper extends QuickWebProxy {
 			showErrorMsg($this->pluginText["Server list is empty"]);
 		}
 		
+		if ($this->checkUrlBlocked($info['url'])) {
+		    showErrorMsg($this->pluginText["Url blocked in the web proxy"]);
+		}
+		
 		// if host server is selected as proxy, then verify user have enough
 		$this->verifyHostServerAsProxyEnabled($info['source_id']);
 		
@@ -59,6 +63,20 @@ class QWP_Helper extends QuickWebProxy {
 		$url = $this->pluginScriptUrl . "&base_url=1&action=processWebProxy&doc_type=export&url=" . urlencode($info['url']);
 		$url .= "&source_id=" . intval($info['source_id']);
 		echo "<script type='text/javascript'>openInNewTab('$url')</script>";
+	}
+	
+	function checkUrlBlocked($url) {
+	    $blockList = explode(',', QWP_PROXY_BLOCK_URLS);
+	    if (!empty($blockList)) {
+	        foreach ($blockList as $blockUrl) {
+	            $blockUrl = trim($blockUrl);
+	            if (stristr($url, $blockUrl)) {
+	                return true;
+	            }
+	        }
+	    }
+	    
+	    return false;
 	}
 	
 	/**
@@ -73,6 +91,10 @@ class QWP_Helper extends QuickWebProxy {
 		
 		if (!isset($info['source_id'])) {
 			showErrorMsg($this->pluginText["Server list is empty"]);
+		}
+		
+		if ($this->checkUrlBlocked($info['url'])) {
+		    showErrorMsg($this->pluginText["Url blocked in the web proxy"]);
 		}
 		
 		// if host server is selected as proxy, then verify user have enough
