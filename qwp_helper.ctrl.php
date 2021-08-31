@@ -70,7 +70,7 @@ class QWP_Helper extends QuickWebProxy {
 	    if (!empty($blockList)) {
 	        foreach ($blockList as $blockUrl) {
 	            $blockUrl = trim($blockUrl);
-	            if (stristr($url, $blockUrl)) {
+	            if (!empty($blockUrl) && stristr($url, $blockUrl)) {
 	                return true;
 	            }
 	        }
