@@ -43,15 +43,15 @@
 			<td class="td_right_col">
 				<?php if($listInfo['set_type'] != 'text'){?>
 					<?php if($listInfo['set_type'] == 'bool'){?>
-						<select  name="<?php echo $listInfo['set_name']?>">
+						<select name="<?php echo $listInfo['set_name']?>" class="custom-select">
 							<option value="1" <?php echo $selectYes?>><?php echo $spText['common']['Yes']?></option>
 							<option value="0" <?php echo $selectNo?>><?php echo $spText['common']['No']?></option>
 						</select>
 					<?php }else{?>
-						<input type="text" class="form-control" name="<?php echo $listInfo['set_name']?>" value="<?php echo stripslashes($listInfo['set_val'])?>" style='width:<?php echo $width?>px'>					
+						<input type="text" class="form-control" name="<?php echo $listInfo['set_name']?>" value="<?php echo stripslashes($listInfo['set_val'])?>">
 					<?php }?>
 				<?php }else{?>
-					<textarea class="form-control" name="<?php echo $listInfo['set_name']?>" ><?php echo stripslashes($listInfo['set_val'])?></textarea>
+					<textarea class="form-control" name="<?php echo $listInfo['set_name']?>"><?php echo stripslashes($listInfo['set_val'])?></textarea>
 				<?php }?>
 				<?php if ($listInfo['set_name'] == 'QWP_PROXY_BLOCK_URLS') {?>
 					<p><?php echo $pluginText['QWP_PROXY_BLOCK_URLS_comment']?></p>
@@ -62,14 +62,14 @@
 	}
 	?>
 </table>
-<table class="actionSec">
+<table class="actionSec float-right mt-2">
 	<tr>
-    	<td style="padding-top: 6px;text-align:right;">
-    		<a onclick="<?php echo pluginGETMethod('action=settings', 'content')?>" href="javascript:void(0);" class="actionbut">
+    	<td>
+    		<a onclick="<?php echo pluginGETMethod('action=settings', 'content')?>" href="javascript:void(0);" class="btn btn-warning">
          		<?php echo $spText['button']['Cancel']?>
          	</a>&nbsp;
          	<?php $actFun = SP_DEMO ? "alertDemoMsg()" : pluginConfirmPOSTMethod('updateSettings', 'content', 'action=updateSettings');?>
-         	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="actionbut">
+         	<a onclick="<?php echo $actFun?>" href="javascript:void(0);" class="btn btn-primary">
          		<?php echo $spText['button']['Proceed']?>
          	</a>
     	</td>
