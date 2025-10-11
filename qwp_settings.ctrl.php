@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (C) 2009-2019 www.seopanel.in. All rights reserved.
+ * Copyright (C) 2009-2019 www.seopanel.org. All rights reserved.
  * @author Geo Varghese 
  * 
  */
