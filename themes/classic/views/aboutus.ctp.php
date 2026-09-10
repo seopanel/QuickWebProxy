@@ -1,4 +1,4 @@
-<?php echo showSectionHead($spTextPanel['About Us']); ?>
+<?php echo showSectionHead($pluginText['Features & Support']); ?>
 
 <div style="max-width: 1200px; margin: 0 auto;">
     <!-- Hero Section -->

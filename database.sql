@@ -25,5 +25,6 @@ INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
 ('en', 'QuickWebProxy', 'Web Server', 'Web Server'),
 ('en', 'QuickWebProxy', 'Please enter a valid url', 'Please enter a valid url'),
 ('en', 'QuickWebProxy', 'Server list is empty', 'Server list is empty'),
-('en', 'common', 'Server', 'Server') 
+('en', 'QuickWebProxy', 'Features & Support', 'Features & Support'),
+('en', 'common', 'Server', 'Server')
 ON DUPLICATE KEY UPDATE `changed`=`changed`;
