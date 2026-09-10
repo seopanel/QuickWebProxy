@@ -117,17 +117,25 @@ class QuickWebProxy extends SeoPluginsController{
     }
 
     /**
-     * function to show proxy server reports form
+     * KNOWN BUG (fixed here): both of these called
+     * $this->helperCtrler->viewFilter()/showReportSummary() - neither
+     * method exists anywhere in this plugin, nor is there a view for
+     * either action, so hitting either action fatally errored. Unreachable
+     * from the plugin's own UI - the menu's "Reports" link never called
+     * these, it always went straight to the real crawl-log viewer
+     * (log.php?sec=crawl&crawl_type=webproxy) instead. Rather than
+     * deleting these two entry points outright (something external could
+     * still be linking to action=report/showReport), point them at that
+     * same real reports page instead of a fatal error.
      */
     function report($data){
-        $this->helperCtrler->viewFilter($data);
+        checkAdminLoggedIn();
+        redirectUrl(SP_WEBPATH . "/log.php?sec=crawl&crawl_type=webproxy");
     }
-    
-    /**
-     * function to show proxy server reports
-     */
+
     function showReport($data){
-        $this->helperCtrler->showReportSummary($data);
+        checkAdminLoggedIn();
+        redirectUrl(SP_WEBPATH . "/log.php?sec=crawl&crawl_type=webproxy");
     }
   
 }
