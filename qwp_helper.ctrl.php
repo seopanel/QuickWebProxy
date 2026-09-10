@@ -13,15 +13,20 @@ class QWP_Helper extends QuickWebProxy {
 	function showWebProxyForm($info) {
 		$proxyCtrler = new ProxyController();
 		$proxyList = $proxyCtrler->__getAllProxys();
-		
+
 		// if allowed web server to act as a proxy
 		if (defined('QWP_ALLOW_WEB_SERVER_ACT_AS_PROXY') && QWP_ALLOW_WEB_SERVER_ACT_AS_PROXY) {
-			$proxyList[] = array('id' => 0, 'proxy' => $this->pluginText['Web Server']);	
+			$proxyList[] = array('id' => 0, 'proxy' => $this->pluginText['Web Server']);
 		}
-		
+
 		$sourceId = isset($info['source_id']) ? intval($info['source_id']) : intval($proxyList[0]['id']);
 		$this->set('sourceId', $sourceId);
 		$this->set('proxyList', $proxyList);
+		$this->set('post', $info);
+
+		include_once(SP_CTRLPATH . '/settings.ctrl.php');
+		$this->set('localAiAvailable', SettingsController::isLocalAIEnabled());
+
 		$this->pluginRender('web_proxy_form');
 	}
 	
@@ -130,7 +135,71 @@ class QWP_Helper extends QuickWebProxy {
 
 	    return !filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
 	}
-	
+
+	/**
+	 * AI-powered quick summary of a URL's content, via Local AI (Ollama) -
+	 * "what is this page about", without needing to actually open the
+	 * interactive proxy view first. Useful for quickly getting the gist
+	 * of a competitor page, a geo-restricted page, or anything else you'd
+	 * otherwise proxy just to read.
+	 *
+	 * This ALWAYS fetches directly from this server (never through an
+	 * external proxy - it needs the page's plain text, not an interactive
+	 * rendering), so it's exactly the same SSRF exposure class as the
+	 * source_id=0 "Web Server" proxy path: reuses checkUrlBlocked() with
+	 * source_id hardcoded to 0 so the private/loopback/link-local/
+	 * reserved-IP guard always applies here, and separately respects
+	 * QWP_ALLOW_WEB_SERVER_ACT_AS_PROXY (if the admin has turned off
+	 * "let the web server act as a proxy" at all, this feature - which
+	 * always behaves like that path - honors that too).
+	 */
+	function summarizeUrlWithAI($info) {
+		include_once(SP_CTRLPATH . '/settings.ctrl.php');
+		if (!SettingsController::isLocalAIEnabled()) {
+			return ['ok' => false, 'summary' => '', 'error' => 'Local AI is not enabled'];
+		}
+
+		if (!defined('QWP_ALLOW_WEB_SERVER_ACT_AS_PROXY') || !QWP_ALLOW_WEB_SERVER_ACT_AS_PROXY) {
+			return ['ok' => false, 'summary' => '', 'error' => 'Web server proxy fetching is disabled'];
+		}
+
+		if (empty($info['url'])) {
+			return ['ok' => false, 'summary' => '', 'error' => 'Please enter a valid url'];
+		}
+		$url = addHttpToUrl($info['url']);
+
+		if ($this->checkUrlBlocked($url, 0)) {
+			return ['ok' => false, 'summary' => '', 'error' => 'This url is blocked'];
+		}
+
+		$spider = new Spider();
+		$spider->_CURLOPT_TIMEOUT = 15;
+		$response = $spider->getContent($url, false, false);
+		if (empty($response['page'])) {
+			return ['ok' => false, 'summary' => '', 'error' => 'Could not fetch that url'];
+		}
+
+		// strip to plain readable text and cap the length to keep the
+		// prompt (and Ollama's context window) reasonable
+		$text = preg_replace('/<script\b[^>]*>.*?<\/script>/is', ' ', $response['page']);
+		$text = preg_replace('/<style\b[^>]*>.*?<\/style>/is', ' ', $text);
+		$text = trim(preg_replace('/\s+/', ' ', strip_tags($text)));
+		$text = mb_substr($text, 0, 6000);
+		if (empty($text)) {
+			return ['ok' => false, 'summary' => '', 'error' => 'No readable text content found on that page'];
+		}
+
+		include_once(SP_CTRLPATH . '/localai.ctrl.php');
+		$userId = isLoggedIn();
+		$systemPrompt = 'You summarize webpage content for an SEO researcher. Respond with a concise 2-3 '
+			. 'sentence summary of what the page is about, based ONLY on the text given - never invent facts '
+			. 'not present in the text.';
+		$prompt = "Page URL: $url\n\nPage text:\n$text\n\nSummarize what this page is about.";
+		$result = (new LocalAIController())->__callOllama($prompt, $systemPrompt, 30, $userId);
+
+		return ['ok' => $result['ok'], 'summary' => $result['text'], 'error' => $result['error']];
+	}
+
 	/**
 	 * function to process web proxy action
 	 */

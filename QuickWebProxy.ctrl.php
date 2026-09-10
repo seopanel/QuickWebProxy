@@ -93,6 +93,23 @@ class QuickWebProxy extends SeoPluginsController{
     }
 
     /*
+     * AJAX action: on-demand Local AI (Ollama) summary of an arbitrary
+     * url's content - see QWP_Helper::summarizeUrlWithAI(). Never
+     * auto-fired; returns JSON. Same access gate as index()/doWebProxy() -
+     * an admin, or any user when QWP_ALLOW_USER_WEB_PROXY is on.
+     */
+    function summarizeWithAI($data) {
+    	if (!isAdmin() && !QWP_ALLOW_USER_WEB_PROXY) {
+    		header('Content-Type: application/json');
+    		print json_encode(['ok' => false, 'summary' => '', 'error' => 'Access denied']);
+    		return;
+    	}
+    	$result = $this->helperCtrler->summarizeUrlWithAI($data);
+    	header('Content-Type: application/json');
+    	print json_encode($result);
+    }
+
+    /*
      * function show system settings
      */
     function settings($data) {
