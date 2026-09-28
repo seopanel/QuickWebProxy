@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `qwp_settings` (
   `set_type` enum('small','bool','medium','large','text') CHARACTER SET latin1 DEFAULT 'small',
   PRIMARY KEY (`id`),
   UNIQUE KEY `set_name` (`set_name`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
 
 --
 -- Dumping data for table `qwp_settings`
