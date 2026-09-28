@@ -8,34 +8,24 @@ class ComposerStaticInit6c6f0bdc839fe62e8b4c269abeb8d797
 {
     public static $files = array (
         'fe17454461a24db888b8da8720edd309' => __DIR__ . '/..' . '/athlon1600/php-proxy/src/helpers.php',
-        '311a7016008bd2d1bccdd3da08cf87ee' => __DIR__ . '/..' . '/athlon1600/php-proxy-plugin-bundle/src/utils.php',
     );
 
     public static $prefixLengthsPsr4 = array (
-        'Y' => 
+        'P' =>
         array (
-            'YouTube\\' => 8,
-        ),
-        'P' => 
-        array (
-            'Proxy\\Plugin\\' => 13,
             'Proxy\\' => 6,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'YouTube\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/athlon1600/youtube-downloader/src',
-        ),
-        'Proxy\\Plugin\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/athlon1600/php-proxy-plugin-bundle/src',
-        ),
-        'Proxy\\' => 
+        'Proxy\\' =>
         array (
             0 => __DIR__ . '/..' . '/athlon1600/php-proxy/src',
         ),
+    );
+
+    public static $classMap = array (
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
@@ -43,6 +33,7 @@ class ComposerStaticInit6c6f0bdc839fe62e8b4c269abeb8d797
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit6c6f0bdc839fe62e8b4c269abeb8d797::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit6c6f0bdc839fe62e8b4c269abeb8d797::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit6c6f0bdc839fe62e8b4c269abeb8d797::$classMap;
 
         }, null, ClassLoader::class);
     }
