@@ -2,6 +2,12 @@
 echo showSectionHead($pluginText['Web Proxy']);
 $actFun = SP_DEMO ? "alertDemoMsg()" : pluginConfirmPOSTMethod('projectform', 'subcontent', 'action=doWebProxy');
 ?>
+<?php if (empty($proxyList)) { ?>
+<div class="alert alert-info">
+	<i class="fas fa-info-circle"></i>
+	No proxy servers are available. <a href="javascript:void(0);" onclick="<?php echo pluginGETMethod('action=settings', 'content')?>">Enable "Allow web server to act as proxy" in Settings</a>, or add a proxy server under Proxy Manager.
+</div>
+<?php } ?>
 <form id='projectform' onsubmit="<?php echo $actFun?>;return false;">
 <table class="search" style="width: 80%">
 	<tr>
@@ -21,7 +27,14 @@ $actFun = SP_DEMO ? "alertDemoMsg()" : pluginConfirmPOSTMethod('projectform', 's
 	<tr>
 		<th><?php echo $spText['common']['Url']?>:*</th>
 		<td>
-			<input type="text" id="qwpUrlInput" name="url" value="<?php echo htmlspecialchars($post['url'] ?? '')?>" class="form-control">
+			<input type="text" id="qwpUrlInput" name="url" value="<?php echo htmlspecialchars($post['url'] ?? '')?>" class="form-control" list="qwpRecentUrls" autocomplete="off">
+			<?php if (!empty($recentUrls)) { ?>
+			<datalist id="qwpRecentUrls">
+				<?php foreach ($recentUrls as $recentUrlInfo) { ?>
+				<option value="<?php echo htmlspecialchars($recentUrlInfo['crawl_link'])?>">
+				<?php } ?>
+			</datalist>
+			<?php } ?>
 		</td>
 	</tr>
 	<tr>

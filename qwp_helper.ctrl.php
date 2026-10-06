@@ -24,6 +24,18 @@ class QWP_Helper extends QuickWebProxy {
 		$this->set('proxyList', $proxyList);
 		$this->set('post', $info);
 
+		// recent URLs quick-pick - crawl_log has no user_id column (it's a
+		// shared, admin-visible log across every crawl type, same data
+		// already exposed by the Reports page's own crawl log view for
+		// crawl_type=webproxy - see menu.ctp.php), so this isn't user-scoped
+		// history, just "recently proxied" across the install
+		$recentUrls = $this->dbHelper->getAllRows(
+			'crawl_log',
+			"crawl_type='webproxy' GROUP BY crawl_link ORDER BY MAX(crawl_time) DESC LIMIT 8",
+			'crawl_link'
+		);
+		$this->set('recentUrls', $recentUrls);
+
 		include_once(SP_CTRLPATH . '/settings.ctrl.php');
 		$this->set('localAiAvailable', SettingsController::isLocalAIEnabled());
 

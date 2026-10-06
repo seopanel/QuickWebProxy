@@ -48,10 +48,10 @@
 							<option value="0" <?php echo $selectNo?>><?php echo $spText['common']['No']?></option>
 						</select>
 					<?php }else{?>
-						<input type="text" class="form-control" name="<?php echo $listInfo['set_name']?>" value="<?php echo stripslashes($listInfo['set_val'])?>">
+						<input type="text" class="form-control" name="<?php echo $listInfo['set_name']?>" value="<?php echo htmlspecialchars(stripslashes($listInfo['set_val']))?>">
 					<?php }?>
 				<?php }else{?>
-					<textarea class="form-control" name="<?php echo $listInfo['set_name']?>"><?php echo stripslashes($listInfo['set_val'])?></textarea>
+					<textarea class="form-control" name="<?php echo $listInfo['set_name']?>"><?php echo htmlspecialchars(stripslashes($listInfo['set_val']))?></textarea>
 				<?php }?>
 				<?php if ($listInfo['set_name'] == 'QWP_PROXY_BLOCK_URLS') {?>
 					<p><?php echo $pluginText['QWP_PROXY_BLOCK_URLS_comment']?></p>

@@ -18,7 +18,6 @@ INSERT INTO `qwp_settings` (`set_label`, `set_name`, `set_val`, `set_type`) VALU
 ON DUPLICATE KEY UPDATE `set_type`=`set_type`;
 
 INSERT INTO `texts` (`lang_code`, `category`, `label`, `content`) VALUES
-('en', 'QuickWebProxy', 'Anonymize', 'Anonymize'),
 ('en', 'QuickWebProxy', 'QWP_ALLOW_USER_WEB_PROXY', 'Allow user to access the web proxy'),
 ('en', 'QuickWebProxy', 'QWP_ALLOW_WEB_SERVER_ACT_AS_PROXY', 'Allow web server to act as a proxy'),
 ('en', 'QuickWebProxy', 'Web Proxy', 'Web Proxy'),
