@@ -6,7 +6,24 @@
  */
 
 class QWP_Helper extends QuickWebProxy {
-	
+
+	/*
+	 * "View as" device presets - a natural fit for an SEO proxy tool
+	 * (checking how a page looks/behaves for a different crawler or device
+	 * class) that didn't exist before. Static + a fixed whitelist so
+	 * custom_config.php (included separately, several layers down inside
+	 * the vendored proxy app, not a QWP_Helper method) can look up the same
+	 * list without instantiating anything or trusting a raw $_GET value as
+	 * a literal User-Agent string.
+	 */
+	static function __getDeviceUserAgents() {
+		return [
+			'mobile' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+			'googlebot' => 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+			'bingbot' => 'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)',
+		];
+	}
+
 	/**
 	 * function to show web proxy form
 	 */
@@ -79,6 +96,13 @@ class QWP_Helper extends QuickWebProxy {
 		$info['url'] = addHttpToUrl($info['url']);
 		$url = $this->pluginScriptUrl . "&base_url=1&action=processWebProxy&doc_type=export&url=" . urlencode($info['url']);
 		$url .= "&source_id=" . intval($info['source_id']);
+		// whitelist check, not a passthrough - device ends up selecting a
+		// fixed User-Agent string server-side (custom_config.php), never
+		// becomes one itself, so an unrecognized value is simply dropped
+		// rather than trusted
+		if (!empty($info['device']) && array_key_exists($info['device'], self::__getDeviceUserAgents())) {
+			$url .= "&device=" . urlencode($info['device']);
+		}
 		echo "<script type='text/javascript'>openInNewTab('$url')</script>";
 	}
 
@@ -212,22 +236,35 @@ class QWP_Helper extends QuickWebProxy {
 		return ['ok' => $result['ok'], 'summary' => $result['text'], 'error' => $result['error']];
 	}
 
+	/*
+	 * Same message as showErrorMsg(), but this one is only ever reached
+	 * inside the disposable new tab openInNewTab() opens for
+	 * processWebProxy() - a bare error banner there is a dead end with no
+	 * back button that makes sense (the previous page, in the OTHER tab,
+	 * still has the live form). Adds a close-tab button instead.
+	 */
+	function __showProxyTabError($msg) {
+		showErrorMsg($msg, false);
+		print '<p style="text-align:center;"><button type="button" class="btn btn-secondary" onclick="window.close()">Close this tab</button></p>';
+		exit;
+	}
+
 	/**
 	 * function to process web proxy action
 	 */
 	function processWebProxy($info) {
 		global $sourceId;
-		
+
 		if (empty($info['url']) && empty($info['q'])) {
-			showErrorMsg($this->pluginText["Please enter a valid url"]);
+			$this->__showProxyTabError($this->pluginText["Please enter a valid url"]);
 		}
-		
+
 		if (!isset($info['source_id'])) {
-			showErrorMsg($this->pluginText["Server list is empty"]);
+			$this->__showProxyTabError($this->pluginText["Server list is empty"]);
 		}
-		
+
 		if ($this->checkUrlBlocked($info['url'], $info['source_id'])) {
-		    showErrorMsg($this->pluginText["Url blocked in the web proxy"]);
+		    $this->__showProxyTabError($this->pluginText["Url blocked in the web proxy"]);
 		}
 
 		// if host server is selected as proxy, then verify user have enough

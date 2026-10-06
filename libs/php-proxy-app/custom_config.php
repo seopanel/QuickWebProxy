@@ -62,6 +62,20 @@ if ($_GET['source_id'] != 0) {
     }
 }
 
+// "View as" device override - qwp_helper.ctrl.php::doWebProxy() already
+// whitelist-checked $_GET['device'] before putting it in this URL at all,
+// so a lookup-miss here (tampered/unrecognized value) just means "no
+// override", not an error. QWP_Helper is already loaded - this file is
+// only ever reached via QWP_Helper::processWebProxy()'s own include of
+// this proxy app's index.php, several layers up this same call stack.
+$qwpDeviceUserAgents = QWP_Helper::__getDeviceUserAgents();
+if (!empty($_GET['device']) && isset($qwpDeviceUserAgents[$_GET['device']])) {
+    if (empty($config['curl'])) {
+        $config['curl'] = array();
+    }
+    $config['curl'][CURLOPT_USERAGENT] = $qwpDeviceUserAgents[$_GET['device']];
+}
+
 //$config['replace_title'] = 'Google Search';
 
 //$config['error_redirect'] = "https://unblockvideos.com/#error={error_msg}";

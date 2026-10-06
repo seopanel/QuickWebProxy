@@ -25,6 +25,18 @@ $actFun = SP_DEMO ? "alertDemoMsg()" : pluginConfirmPOSTMethod('projectform', 's
 		</td>
 	</tr>
 	<tr>
+		<th>View As:</th>
+		<td>
+			<select name="device" class="custom-select">
+				<option value="">Default</option>
+				<option value="mobile">Mobile (iPhone Safari)</option>
+				<option value="googlebot">Googlebot</option>
+				<option value="bingbot">Bingbot</option>
+			</select>
+			<p class="note">Sends a different User-Agent to the target site for this one request only.</p>
+		</td>
+	</tr>
+	<tr>
 		<th><?php echo $spText['common']['Url']?>:*</th>
 		<td>
 			<input type="text" id="qwpUrlInput" name="url" value="<?php echo htmlspecialchars($post['url'] ?? '')?>" class="form-control" list="qwpRecentUrls" autocomplete="off">
